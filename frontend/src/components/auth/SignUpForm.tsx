@@ -12,7 +12,7 @@ import {
 import { toast } from "react-toastify";
 export default function SignUpForm() {
   let dispatch = useDispatch();
-
+  const roles = ["RHSE", "AHSE", "RDEP", "OC"];
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [imageFile, setImageFile] = useState(null);
@@ -21,6 +21,7 @@ export default function SignUpForm() {
     username: "",
     email: "",
     password: "",
+    role: "",
   });
 
   function handleRegisterUser(e: any) {
@@ -29,6 +30,7 @@ export default function SignUpForm() {
     formData.append("username", data.username);
     formData.append("email", data.email);
     formData.append("password", data.password);
+    formData.append("role", data.role);
     if (imageFile) {
       formData.append("image", imageFile);
     }
@@ -129,6 +131,25 @@ export default function SignUpForm() {
                     </span>
                   </div>
                 </div>
+
+                <div>
+                  <Label>
+                    Role<span className="text-error-500">*</span>
+                  </Label>
+                  <div className="relative">
+                    <select
+                      onChange={(e) =>
+                        setData({ ...data, role: e.target.value })
+                      }
+                    >
+                      <option defaultChecked>choisir votre role </option>
+                      {roles.map((el) => {
+                        return <option value={el}>{el}</option>;
+                      })}
+                    </select>
+                  </div>
+                </div>
+
                 <div className="relative">
                   Image de profile
                   <input

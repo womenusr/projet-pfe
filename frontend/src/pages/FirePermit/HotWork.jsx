@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styles from "../styles/HotWorkPermitForm.module.css";
+import styles from "./HotWorkPermitForm.module.css";
 
 const HotWorkPermitForm = () => {
   const [formData, setFormData] = useState({

@@ -36,32 +36,47 @@ export const register = async (req, res) => {
 
 export const login = async (req, res) => {
   try {
-    let user = await userModel.findOne({ email: req.body.email });
+    const user = await userModel.findOne({ email: req.body.email });
+
     if (!user) {
-      res.json({ error: "email n'existe pas ! " });
-    } else {
-      bcrypt.compare(req.body.password, user.password, (err, kifkif) => {
-        if (err) {
-          res.json({ error: err });
-        } else {
-          if (kifkif == true) {
-            let payload = {
-              _id: user._id,
-              email: user.email,
-            };
-            let token = jwt.sign(payload, "ter-515-420-AAA-basma-tunis-2278");
-            res.json({ msg: "bienvenue", user: user, token: token });
-          } else {
-            res.json({ error: "mot de passe incorrecte ! " });
-          }
-        }
-      });
+      return res.status(400).json({ error: "Email n'existe pas !" });
     }
+
+    if (user.account_status === "pending") {
+      return res
+        .status(403)
+        .json({ error: "Votre compte n'est pas encore activé." });
+    }
+
+    if (user.account_status === "rejected") {
+      return res.status(403).json({ error: "Votre compte est suspendu !" });
+    }
+
+    const passwordMatch = await bcrypt.compare(
+      req.body.password,
+      user.password
+    );
+    if (!passwordMatch) {
+      return res.status(400).json({ error: "Mot de passe incorrect !" });
+    }
+
+    const payload = {
+      _id: user._id,
+      email: user.email,
+    };
+
+    const token = jwt.sign(payload, "ter-515-420-AAA-basma-tunis-2278", {
+      expiresIn: "7d",
+    });
+
+    return res.json({ msg: "Bienvenue", user, token });
   } catch (err) {
-    res.json({ error: err });
+    console.error("Login error:", err);
+    return res
+      .status(500)
+      .json({ error: "Erreur serveur lors de la connexion." });
   }
 };
-
 export const updateProfile = async (req, res) => {
   let id = req.params.id;
   console.log(id);

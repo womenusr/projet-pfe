@@ -2,7 +2,11 @@ import WorkPermit from "../models/workPermitModel.js";
 
 export const createWorkPermit = async (req, res) => {
   try {
-    const permit = new WorkPermit(req.body);
+    const exisitingWorkPermits = await WorkPermit.find();
+    const permit = new WorkPermit({
+      ...req.body,
+      numero: exisitingWorkPermits.length + 1,
+    });
     await permit.save();
     res.status(201).json(permit);
   } catch (err) {

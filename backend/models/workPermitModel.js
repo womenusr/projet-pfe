@@ -9,6 +9,8 @@ const PersonSchema = new mongoose.Schema({
 
 const WorkPermitSchema = new mongoose.Schema(
   {
+    numero: Number,
+    intervention: String,
     coordinatorName: String,
     coordinatorPosition: String,
     speakerName: String,
@@ -31,6 +33,8 @@ const WorkPermitSchema = new mongoose.Schema(
     inspectionPlace: String,
     coordinatorSignature: String,
     responsibleSignature: String,
+    status: String,
+    briefing: String,
   },
   { timestamps: true }
 );

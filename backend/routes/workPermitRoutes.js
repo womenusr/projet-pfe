@@ -10,7 +10,7 @@ import {
 const router = express.Router();
 
 router.post("/", createWorkPermit);
-router.get("/", getAllWorkPermits);
+router.get("/get_all_workpermits", getAllWorkPermits);
 router.get("/:id", getWorkPermitById);
 router.put("/:id", updateWorkPermit);
 router.delete("/:id", deleteWorkPermit);

@@ -5,6 +5,8 @@ import workPermitRoutes from "./routes/workPermitRoutes.js";
 import authRoutes from "./routes/authRoutes.js";
 import usersRoutes from "./routes/usersRoutes.js";
 import stocksRoutes from "./routes/stockRoutes.js";
+import hotWorkPermitRoutes from "./routes/hotWorkPermitRoutes.js";
+
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -31,7 +33,7 @@ server.use("/api/work-permit", workPermitRoutes);
 server.use("/api/auth", authRoutes);
 server.use("/api/users", usersRoutes);
 server.use("/api/stocks", stocksRoutes);
-
+server.use("/api/hot-work-permits", hotWorkPermitRoutes);
 server.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 server.listen(8000, () => {

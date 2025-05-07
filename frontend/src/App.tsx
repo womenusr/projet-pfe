@@ -26,7 +26,8 @@ import Home from "./pages/Landing/Home";
 import AddUser from "./pages/admin/usersManagement/AddUser.tsx";
 
 import Unauthorized from "./pages/OtherPage/Unauthorized.tsx";
-
+import GenericLayout from "./layout/GenericLayout.tsx";
+import WorkPermitManagement from "./pages/GenericPages/WorkPermitManagement.jsx";
 export default function App() {
   const [loading, setLoading] = useState(true);
 
@@ -52,19 +53,16 @@ export default function App() {
         <ScrollToTop />
         <Routes>
           {/* Dashboard Layout */}
-
           <Route index path="/" element={<Home />} />
-
           <Route
             path="/work-permit"
             element={
-              <AdminLayout>
+              <GenericLayout>
                 {" "}
                 <WorkPermit />{" "}
-              </AdminLayout>
+              </GenericLayout>
             }
           />
-
           <Route
             path="/add_user"
             element={
@@ -74,14 +72,13 @@ export default function App() {
               </AdminLayout>
             }
           />
-
           <Route
             path="/operation-management"
             element={
-              <AdminLayout >
+              <GenericLayout>
                 {" "}
                 <OperationManagement />{" "}
-              </AdminLayout>
+              </GenericLayout>
             }
           />
 
@@ -94,7 +91,6 @@ export default function App() {
               </AdminLayout>
             }
           />
-
           <Route
             path="/stock-management"
             element={
@@ -104,7 +100,6 @@ export default function App() {
               </AdminLayout>
             }
           />
-
           <Route
             path="/patrol-management"
             element={
@@ -114,7 +109,6 @@ export default function App() {
               </AdminLayout>
             }
           />
-
           <Route
             path="/users-management"
             element={
@@ -122,6 +116,16 @@ export default function App() {
                 {" "}
                 <UsersManagement />{" "}
               </AdminLayout>
+            }
+          />
+
+          <Route
+            path="/work-permit-management"
+            element={
+              <GenericLayout>
+                {" "}
+                <WorkPermitManagement />{" "}
+              </GenericLayout>
             }
           />
 
