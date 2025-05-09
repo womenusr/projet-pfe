@@ -28,6 +28,7 @@ import AddUser from "./pages/admin/usersManagement/AddUser.tsx";
 import Unauthorized from "./pages/OtherPage/Unauthorized.tsx";
 import GenericLayout from "./layout/GenericLayout.tsx";
 import WorkPermitManagement from "./pages/GenericPages/WorkPermitManagement.jsx";
+import UpdateWorkPermit from "./pages/workPermit/UpdateWorkPermit.jsx";
 export default function App() {
   const [loading, setLoading] = useState(true);
 
@@ -63,6 +64,17 @@ export default function App() {
               </GenericLayout>
             }
           />
+
+          <Route
+            path="/update-work-permit/:id"
+            element={
+              <GenericLayout>
+                {" "}
+                <UpdateWorkPermit />{" "}
+              </GenericLayout>
+            }
+          />
+
           <Route
             path="/add_user"
             element={

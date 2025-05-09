@@ -11,7 +11,7 @@ const router = express.Router();
 
 router.post("/", createWorkPermit);
 router.get("/get_all_workpermits", getAllWorkPermits);
-router.get("/:id", getWorkPermitById);
+router.get("/get_workpermit_by_id/:id", getWorkPermitById);
 router.put("/:id", updateWorkPermit);
 router.delete("/:id", deleteWorkPermit);
 

@@ -1,10 +1,21 @@
 import mongoose from "mongoose";
+import hotWorkModel from "./hotWorkModel.js";
 
 const PersonSchema = new mongoose.Schema({
   name: String,
   position: String,
   cin: String,
   signature: String,
+});
+
+const briefingSchema = new mongoose.Schema({
+  status: {
+    type: String,
+    enum: ["done", "blocked", "reluctantly"],
+  },
+  description: {
+    type: String,
+  },
 });
 
 const WorkPermitSchema = new mongoose.Schema(
@@ -33,8 +44,18 @@ const WorkPermitSchema = new mongoose.Schema(
     inspectionPlace: String,
     coordinatorSignature: String,
     responsibleSignature: String,
-    status: String,
-    briefing: String,
+    status: {
+      type: String,
+      default: "pending",
+      enum: ["approved", "rejected", "pending"],
+    },
+    briefing: {
+      type: briefingSchema,
+    },
+    hot_work_id: {
+      type: mongoose.Types.ObjectId,
+      ref: hotWorkModel,
+    },
   },
   { timestamps: true }
 );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { getAllWorkPermits } from "../../services/workPermitServices";
 import { useNavigate } from "react-router";
 const WorkPermitTable = ({ workPermits }) => {
+  const navigate = useNavigate();
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full bg-white shadow rounded-lg">
@@ -67,7 +68,12 @@ const WorkPermitTable = ({ workPermits }) => {
                   <button className="text-blue-600 hover:underline mr-2">
                     View
                   </button>
-                  <button className="text-green-600 hover:underline mr-2">
+                  <button
+                    onClick={() =>
+                      navigate(`/update-work-permit/${permit._id}`)
+                    }
+                    className="text-green-600 hover:underline mr-2"
+                  >
                     Edit
                   </button>
                   <button className="text-red-600 hover:underline">

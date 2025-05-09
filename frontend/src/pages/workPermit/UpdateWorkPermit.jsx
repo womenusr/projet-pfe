@@ -1,13 +1,19 @@
 import React, { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router";
 import styles from "./WorkPermit.module.css";
 import ImageCheckboxGrid from "../../components/common/ImageCheckboxGrid";
 import EquipementAgainFire from "../../components/common/EquipementAgainFire";
 import axios from "axios";
 import HotWorkPermitForm from "../FirePermit/HotWork";
+import { getWorkPermitById } from "../../services/workPermitServices";
+import UpdateHotWork from "../FirePermit/UpdateHotWork";
 
-const WorkPermit = () => {
+const WorkPermitUpdate = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [hotWork, setHotWork] = useState({});
   const [displayHotWork, setDisplayHotWork] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [formData, setFormData] = useState({
     coordinatorName: "",
     coordinatorPosition: "",
@@ -36,6 +42,69 @@ const WorkPermit = () => {
     responsibleSignature: "",
   });
 
+  const tools = [
+    "Cutting tool",
+    "Drilling tool",
+    "Chemical substances",
+    "hot working tools (cutting , welding ...)",
+    "Live electrical equipment",
+    "Working at height equipment",
+    "Lifting equipment",
+  ];
+
+  useEffect(() => {
+    const fetchWorkPermit = async () => {
+      try {
+        const response = await getWorkPermitById(id);
+        const data = response;
+
+        // Convert date strings to the format expected by date inputs (YYYY-MM-DD)
+        const formatDate = (dateString) => {
+          if (!dateString) return "";
+          const date = new Date(dateString);
+          return date.toISOString().split("T")[0];
+        };
+
+        setFormData({
+          ...data,
+          startDateTime: formatDate(data.startDateTime),
+          endDateTime: formatDate(data.endDateTime),
+          inspectionDate: formatDate(data.inspectionDate),
+          // Ensure persons array has at least 2 items
+          persons:
+            data.persons.length >= 2
+              ? data.persons
+              : [
+                  ...data.persons,
+                  ...Array(2 - data.persons.length).fill({
+                    name: "",
+                    position: "",
+                    cin: "",
+                    signature: "",
+                  }),
+                ],
+        });
+
+        if (data.hot_work_id?._id) {
+          setHotWork(data.hot_work_id);
+        }
+
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching work permit:", error);
+        setLoading(false);
+      }
+    };
+
+    fetchWorkPermit();
+  }, [id]);
+
+  //   useEffect(() => {
+  //     if (formData.toolsUsed.includes(tools[3])) {
+  //       setDisplayHotWork(true);
+  //     }
+  //   }, [formData.toolsUsed]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -56,39 +125,41 @@ const WorkPermit = () => {
     });
   };
 
-  const tools = [
-    "Cutting tool",
-    "Drilling tool",
-    "Chemical substances",
-    "hot working tools (cutting , welding ...)",
-    "Live electrical equipment",
-    "Working at height equipment",
-    "Lifting equipment",
-  ];
-
-  function handleAddWorkPermit() {
-    console.log(hotWork)
+  const handleUpdateWorkPermit = () => {
     axios
-      .post("http://localhost:8000/api/work-permit", {
+      .put(`http://localhost:8000/api/work-permit/${id}`, {
         ...formData,
         hotWork: hotWork,
       })
       .then((response) => {
-        console.log("Work Permit added successfully:", response.data);
+        console.log("Work Permit updated successfully:", response.data);
+        navigate("/work-permits"); // Redirect to work permits list after update
+      })
+      .catch((error) => {
+        console.error("Error updating work permit:", error);
       });
-    console.log("Work Permit Data:", formData);
-  }
+  };
 
-  useEffect(() => {
-    if (formData.toolsUsed.includes(tools[3])) {
-      setDisplayHotWork(true);
-    }
-  }, [formData.toolsUsed]);
+  if (loading) {
+    return <div>Loading work permit data...</div>;
+  }
 
   return (
     <>
+      {hotWork?._id ? (
+        <button
+          className="bg-blue-600 text-white px-2 py-4 rounded"
+          onClick={() => setDisplayHotWork(true)}
+        >
+          {" "}
+          il ya un hot work
+        </button>
+      ) : null}
+
       {!displayHotWork && (
         <div className={styles.container}>
+          <h2>Edit Work Permit</h2>
+
           <div className={styles.section}>
             <label>WORK COORDINATOR</label>
             <div className={styles.row}>
@@ -396,20 +467,32 @@ const WorkPermit = () => {
               />
             </div>
           </div>
-          <button onClick={handleAddWorkPermit} className={styles.saveButton}>
-            enregister workpermit {formData.toolsUsed}
-          </button>
+          <div className={styles.buttonGroup}>
+            <button
+              onClick={handleUpdateWorkPermit}
+              className={styles.saveButton}
+            >
+              Update Work Permit
+            </button>
+            <button
+              onClick={() => navigate(-1)}
+              className={styles.cancelButton}
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
 
       {displayHotWork ? (
-        <HotWorkPermitForm
+        <UpdateHotWork
           setDisplayHotWork={setDisplayHotWork}
           setHotWork={setHotWork}
+          initialData={hotWork}
         />
       ) : null}
     </>
   );
 };
 
-export default WorkPermit;
+export default WorkPermitUpdate;

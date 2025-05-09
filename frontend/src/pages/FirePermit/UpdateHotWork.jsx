@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styles from "./HotWorkPermitForm.module.css";
 
-const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
+const UpdateHotWork = ({ setHotWork, setDisplayHotWork, initialData }) => {
   const [formData, setFormData] = useState({
     name: "",
     jobDetails: "",
@@ -16,6 +16,13 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
     questions: Array(10).fill(""),
   });
 
+  // Initialize form with existing data if provided
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -28,8 +35,12 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
   };
 
   const handleSubmit = (e) => {
+    e.preventDefault();
     setHotWork(formData);
-    console.log("Form Data:", formData);
+    setDisplayHotWork(false);
+  };
+
+  const handleCancel = () => {
     setDisplayHotWork(false);
   };
 
@@ -48,7 +59,7 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
 
   return (
     <form className={styles.container} onSubmit={handleSubmit}>
-      <div className={styles.title}>HOT WORK</div>
+      <div className={styles.title}>HOT WORK PERMIT</div>
 
       <div className={styles.section}>
         <label>Name</label>
@@ -57,6 +68,7 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
           name="name"
           value={formData.name}
           onChange={handleInputChange}
+          required
         />
 
         <label>JOB DETAILS</label>
@@ -64,6 +76,7 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
           name="jobDetails"
           value={formData.jobDetails}
           onChange={handleInputChange}
+          required
         />
 
         <label>SPECIAL TOOLS TO BE USED</label>
@@ -80,6 +93,7 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
           name="location"
           value={formData.location}
           onChange={handleInputChange}
+          required
         />
 
         <label>
@@ -124,6 +138,7 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
                   type="radio"
                   name={`q${idx}`}
                   value="YES"
+                  checked={formData.questions[idx] === "YES"}
                   onChange={() => handleQuestionChange(idx, "YES")}
                 />
               </td>
@@ -132,6 +147,7 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
                   type="radio"
                   name={`q${idx}`}
                   value="NO"
+                  checked={formData.questions[idx] === "NO"}
                   onChange={() => handleQuestionChange(idx, "NO")}
                 />
               </td>
@@ -140,6 +156,7 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
                   type="radio"
                   name={`q${idx}`}
                   value="N/A"
+                  checked={formData.questions[idx] === "N/A"}
                   onChange={() => handleQuestionChange(idx, "N/A")}
                 />
               </td>
@@ -161,33 +178,38 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
             name="approvalBy"
             value={formData.approvalBy}
             onChange={handleInputChange}
+            required
           />
 
           <label>DATE</label>
           <input
-            type="text"
+            type="date"
             name="approvalDate"
             value={formData.approvalDate}
             onChange={handleInputChange}
+            required
           />
 
           <label>TIME</label>
           <input
-            type="text"
+            type="time"
             name="approvalTime"
             value={formData.approvalTime}
             onChange={handleInputChange}
+            required
           />
         </div>
 
         <div className={styles.permitInfo}>
           HOT PERMIT WORK IS GOOD FOR
           <input
-            type="text"
+            type="number"
             name="hours"
             className={styles.inlineInput}
             value={formData.hours}
             onChange={handleInputChange}
+            min="1"
+            required
           />
           HOURS ONLY.
           <br />
@@ -199,10 +221,12 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
             className={styles.inlineInput}
             value={formData.shiftDay}
             onChange={handleInputChange}
+            required
           />
           .
         </div>
       </div>
+
       <div className={styles.signatureSection}>
         <table className={styles.signatureTable}>
           <thead>
@@ -226,14 +250,21 @@ const HotWorkPermitForm = ({ setHotWork, setDisplayHotWork }) => {
           </tbody>
         </table>
       </div>
-      <button
-        type="submit"
-        style={{ marginTop: "20px", padding: "10px 20px", fontWeight: "bold" }}
-      >
-        Submit
-      </button>
+
+      <div className={styles.buttonGroup}>
+        <button type="submit" className={styles.submitButton}>
+          Save Changes
+        </button>
+        <button
+          type="button"
+          onClick={handleCancel}
+          className={styles.cancelButton}
+        >
+          Cancel
+        </button>
+      </div>
     </form>
   );
 };
 
-export default HotWorkPermitForm;
+export default UpdateHotWork;

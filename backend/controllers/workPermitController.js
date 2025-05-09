@@ -1,14 +1,27 @@
+import hotWorkModel from "../models/hotWorkModel.js";
 import WorkPermit from "../models/workPermitModel.js";
 
 export const createWorkPermit = async (req, res) => {
   try {
     const exisitingWorkPermits = await WorkPermit.find();
-    const permit = new WorkPermit({
-      ...req.body,
-      numero: exisitingWorkPermits.length + 1,
-    });
-    await permit.save();
-    res.status(201).json(permit);
+    if (req.body.hotWork) {
+      let newHotWork = new hotWorkModel(req.body.hotWork);
+      await newHotWork.save();
+      const permit = new WorkPermit({
+        ...req.body,
+        numero: exisitingWorkPermits.length + 1,
+        hot_work_id: newHotWork._id,
+      });
+      await permit.save();
+      res.status(201).json(permit);
+    } else {
+      const permit = new WorkPermit({
+        ...req.body,
+        numero: exisitingWorkPermits.length + 1,
+      });
+      await permit.save();
+      res.status(201).json(permit);
+    }
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -16,7 +29,7 @@ export const createWorkPermit = async (req, res) => {
 
 export const getAllWorkPermits = async (req, res) => {
   try {
-    const permits = await WorkPermit.find();
+    const permits = await WorkPermit.find().populate("hot_work_id");
     res.json(permits);
   } catch (err) {
     res.status(500).json({ message: err.message });
@@ -25,7 +38,9 @@ export const getAllWorkPermits = async (req, res) => {
 
 export const getWorkPermitById = async (req, res) => {
   try {
-    const permit = await WorkPermit.findById(req.params.id);
+    const permit = await WorkPermit.findById(req.params.id).populate(
+      "hot_work_id"
+    );
     if (!permit) return res.status(404).json({ message: "Not found" });
     res.json(permit);
   } catch (err) {

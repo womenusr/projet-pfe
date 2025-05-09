@@ -6,3 +6,8 @@ export const getAllWorkPermits = async () => {
 
   return res.data;
 };
+
+export const getWorkPermitById = async (id) => {
+  let res = await axios.get(base_url + "/get_workpermit_by_id/" + id);
+  return res.data;
+};
