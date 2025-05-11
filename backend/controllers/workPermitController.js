@@ -49,14 +49,40 @@ export const getWorkPermitById = async (req, res) => {
 };
 
 export const updateWorkPermit = async (req, res) => {
+  const { hotWork, ...data } = req.body;
+
   try {
-    const updated = await WorkPermit.findByIdAndUpdate(
+    if (hotWork) {
+      if (hotWork._id) {
+        // Update existing HotWork
+        const updatedHotWork = await hotWorkModel.findByIdAndUpdate(
+          hotWork._id,
+          hotWork,
+          { new: true }
+        );
+
+        if (!updatedHotWork) {
+          return res.status(404).json({ message: "HotWork not found" });
+        }
+      } else {
+        // Create new HotWork and link to WorkPermit
+        const newHotWork = new hotWorkModel(hotWork);
+        await newHotWork.save();
+        data.hot_work_id = newHotWork._id;
+      }
+    }
+
+    const updatedWorkPermit = await WorkPermit.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      data,
       { new: true }
     );
-    if (!updated) return res.status(404).json({ message: "Not found" });
-    res.json(updated);
+
+    if (!updatedWorkPermit) {
+      return res.status(404).json({ message: "WorkPermit not found" });
+    }
+
+    res.json(updatedWorkPermit);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }

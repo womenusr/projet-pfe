@@ -5,7 +5,10 @@ import ImageCheckboxGrid from "../../components/common/ImageCheckboxGrid";
 import EquipementAgainFire from "../../components/common/EquipementAgainFire";
 import axios from "axios";
 import HotWorkPermitForm from "../FirePermit/HotWork";
-import { getWorkPermitById } from "../../services/workPermitServices";
+import {
+  getWorkPermitById,
+  updateWorkPermit,
+} from "../../services/workPermitServices";
 import UpdateHotWork from "../FirePermit/UpdateHotWork";
 
 const WorkPermitUpdate = () => {
@@ -99,11 +102,11 @@ const WorkPermitUpdate = () => {
     fetchWorkPermit();
   }, [id]);
 
-  //   useEffect(() => {
-  //     if (formData.toolsUsed.includes(tools[3])) {
-  //       setDisplayHotWork(true);
-  //     }
-  //   }, [formData.toolsUsed]);
+  useEffect(() => {
+    if (formData.toolsUsed.includes(tools[3])) {
+      setDisplayHotWork(true);
+    }
+  }, [formData.toolsUsed]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -125,19 +128,16 @@ const WorkPermitUpdate = () => {
     });
   };
 
-  const handleUpdateWorkPermit = () => {
-    axios
-      .put(`http://localhost:8000/api/work-permit/${id}`, {
-        ...formData,
-        hotWork: hotWork,
-      })
-      .then((response) => {
-        console.log("Work Permit updated successfully:", response.data);
-        navigate("/work-permits"); // Redirect to work permits list after update
-      })
-      .catch((error) => {
-        console.error("Error updating work permit:", error);
-      });
+  const handleUpdateWorkPermit = async () => {
+    console.log(hotWork);
+    delete formData.hot_work_id;
+    let sendData;
+    if (Object.keys(hotWork).length > 0) {
+      sendData = { ...formData, hotWork: hotWork };
+    } else {
+      sendData = formData;
+    }
+    await updateWorkPermit(id, sendData);
   };
 
   if (loading) {

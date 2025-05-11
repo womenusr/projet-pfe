@@ -18,7 +18,7 @@ const UpdateHotWork = ({ setHotWork, setDisplayHotWork, initialData }) => {
 
   // Initialize form with existing data if provided
   useEffect(() => {
-    if (initialData) {
+    if (Object.keys(initialData).length > 0) {
       setFormData(initialData);
     }
   }, [initialData]);

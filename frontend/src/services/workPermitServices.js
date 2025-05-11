@@ -11,3 +11,8 @@ export const getWorkPermitById = async (id) => {
   let res = await axios.get(base_url + "/get_workpermit_by_id/" + id);
   return res.data;
 };
+
+export const updateWorkPermit = async (id, data) => {
+  let res = await axios.put(base_url + `/${id}`, data);
+  return res.data;
+};

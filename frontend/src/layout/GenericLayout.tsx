@@ -29,8 +29,6 @@ const GenericLayout: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
       <div className="flex h-screen overflow-hidden">
-        {["admin", "RHSE", "AHSE", "RDEP", "OC"]}
-
         {role == "admin" && (
           <AdminSideBar
             sidebarOpen={sidebarOpen}
