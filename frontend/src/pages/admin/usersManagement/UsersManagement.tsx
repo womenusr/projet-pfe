@@ -74,9 +74,10 @@ const UsersManagement: React.FC = () => {
     await adminServices.updateUser({ _id: id, role: newRole });
   };
 
-  const handleChangeAccountStatus = async (e, id) => {
+  const handleChangeAccountStatus = async (e, id, email) => {
     let newStatus = e.target.value;
     await adminServices.updateUser({ _id: id, account_status: newStatus });
+    await adminServices.sendAccountStatusEmail({ userEmail: email });
   };
 
   return (
@@ -167,7 +168,9 @@ const UsersManagement: React.FC = () => {
                 </td>
                 <td className=" text-gray-900">
                   <select
-                    onChange={(e) => handleChangeAccountStatus(e, user._id)}
+                    onChange={(e) =>
+                      handleChangeAccountStatus(e, user._id, user.email)
+                    }
                     className={
                       user.account_status === "pending"
                         ? "px-2 py-4 rounded bg-orange-500"

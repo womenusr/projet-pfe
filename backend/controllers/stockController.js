@@ -1,9 +1,10 @@
-import stockModel from "../models/stockModel.js"
+import sendLowStockEmail from "../helpers/sendLowStockEmail.js";
+import stockModel from "../models/stockModel.js";
 
 export const createStock = async (req, res) => {
   try {
-    const { product_name, quantity } = req.body;
-    const newStock = new stockModel({ product_name, quantity });
+    const { product_name, quantity, stock_limit } = req.body;
+    const newStock = new stockModel({ product_name, quantity, stock_limit });
     await newStock.save();
     res.status(201).json(newStock);
   } catch (error) {
@@ -37,6 +38,9 @@ export const updateStock = async (req, res) => {
       req.body,
       { new: true, runValidators: true }
     );
+
+    sendLowStockEmail("najlaouibasmasv@gmail.com");
+
     if (!updatedStock)
       return res.status(404).json({ message: "Stock not found" });
     res.status(200).json(updatedStock);

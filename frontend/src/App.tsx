@@ -84,6 +84,17 @@ export default function App() {
               </AdminLayout>
             }
           />
+
+          <Route
+            path="/patrol-management"
+            element={
+              <GenericLayout>
+                {" "}
+                <PatrolManagement />{" "}
+              </GenericLayout>
+            }
+          />
+
           <Route
             path="/operation-management"
             element={

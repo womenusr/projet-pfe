@@ -1,16 +1,36 @@
 import mongoose from "mongoose";
 
-const stockSchema = new mongoose.Schema({
-  product_name: {
+const bonDeSortieSchema = new mongoose.Schema({
+  departement: {
     type: String,
-    require: true,
+    required: true,
+  },
+  datePrelevement: {
+    type: Date,
+    required: true,
   },
   quantity: {
     type: Number,
-    require: true,
+    required: true,
   },
 });
 
-let stockModel = mongoose.model("stock", stockSchema);
+const stockSchema = new mongoose.Schema({
+  product_name: {
+    type: String,
+    required: true,
+  },
+  quantity: {
+    type: Number,
+    required: true,
+  },
+  stock_limit: {
+    type: Number,
+    required: true,
+  },
+  bonDeSortie: [bonDeSortieSchema],
+});
+
+const stockModel = mongoose.model("stock", stockSchema);
 
 export default stockModel;

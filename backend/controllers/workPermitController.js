@@ -1,6 +1,10 @@
 import hotWorkModel from "../models/hotWorkModel.js";
 import WorkPermit from "../models/workPermitModel.js";
 
+import nodemailer from "nodemailer";
+import fs from "fs";
+import transporter from "../config/emailConfig.js";
+
 export const createWorkPermit = async (req, res) => {
   try {
     const exisitingWorkPermits = await WorkPermit.find();
@@ -95,5 +99,38 @@ export const deleteWorkPermit = async (req, res) => {
     res.json({ message: "Deleted successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });
+  }
+};
+
+export const sendEmailWithAttachement = async (req, res) => {
+  try {
+    const { recipient, subject, message } = req.body;
+    const file = req.file; // Multer adds the file here
+
+    if (!file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
+
+    const mailOptions = {
+      from: "<no-reply@example.com>", // Sender address
+      to: recipient, // Recipient email
+      subject: subject || "Work Permit Details", // Email subject
+      text: message || "Please find attached the work permit details.", // Plain text body
+      attachments: [
+        {
+          filename: file.originalname, // Name of the attachment
+          path: file.path,
+          contentType: "application/pdf",
+        },
+      ],
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+    fs.unlinkSync(file.path);
+    res.status(200).json({ success: true, message: "Email sent successfully" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ error: "Failed to send email" });
   }
 };

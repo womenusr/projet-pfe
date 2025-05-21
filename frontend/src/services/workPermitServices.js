@@ -16,3 +16,12 @@ export const updateWorkPermit = async (id, data) => {
   let res = await axios.put(base_url + `/${id}`, data);
   return res.data;
 };
+
+export const sendEmail = async (data) => {
+  let res = await axios.post(base_url + "/send-email", data, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return res.data;
+};

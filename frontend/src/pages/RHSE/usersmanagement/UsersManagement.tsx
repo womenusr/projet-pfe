@@ -3,8 +3,7 @@ import { FaEnvelope, FaTrash, FaStar } from "react-icons/fa";
 import adminServices from "../../../services/adminServices.js";
 import { toast, ToastContainer } from "react-toastify";
 import { Navigate, useNavigate } from "react-router";
-import { updateUser } from "../../../../redux/slices/authSlice";
-import { useDispatch } from "react-redux";
+import axios from "axios";
 interface User {
   _id: string;
   username: string;
@@ -74,10 +73,16 @@ const UsersManagement: React.FC = () => {
     await adminServices.updateUser({ _id: id, role: newRole });
   };
 
-  const handleChangeAccountStatus = async (e, id) => {
-    let newStatus = e.target.value;
+ const handleChangeAccountStatus = async (e, id, email) => {
+  let newStatus = e.target.value;
+
+  try {
     await adminServices.updateUser({ _id: id, account_status: newStatus });
-  };
+    await adminServices.sendAccountStatusEmail({ userEmail: email });
+  } catch (error) {
+    console.error('Error updating status or sending email:', error);
+  }
+};
 
   return (
     <div className="w-full p-4 bg-white rounded-lg shadow-md">
@@ -167,7 +172,9 @@ const UsersManagement: React.FC = () => {
                 </td>
                 <td className=" text-gray-900">
                   <select
-                    onChange={(e) => handleChangeAccountStatus(e, user._id)}
+                    onChange={(e) =>
+                      handleChangeAccountStatus(e, user._id, user.email)
+                    }
                     className={
                       user.account_status === "pending"
                         ? "px-2 py-4 rounded bg-orange-500"

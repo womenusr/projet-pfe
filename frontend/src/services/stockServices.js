@@ -12,4 +12,9 @@ const addStock = async (data) => {
   return response.data;
 };
 
+export const updateStock = async (id, data) => {
+  const response = await axios.put(base_url + "/update_stock/" + id, data);
+  return response.data;
+};
+
 export default { fetchStocks, addStock };

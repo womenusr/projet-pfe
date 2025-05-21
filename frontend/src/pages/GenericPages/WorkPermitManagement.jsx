@@ -4,8 +4,11 @@ import {
   updateWorkPermit,
 } from "../../services/workPermitServices";
 import { useNavigate } from "react-router";
-import { FaPen } from "react-icons/fa";
+import { FaPen, FaTrash, FaPlus } from "react-icons/fa";
 import { FiEye } from "react-icons/fi";
+import { HiStatusOnline } from "react-icons/hi";
+import { MdClose } from "react-icons/md";
+import WorkPermitView from "../workPermit/ViewWorkPermit";
 
 const WorkPermitTable = ({ workPermits }) => {
   const navigate = useNavigate();
@@ -13,20 +16,24 @@ const WorkPermitTable = ({ workPermits }) => {
     status: "",
     description: "",
   });
-  const [Displaybriefing, setDisplayBriefing] = useState(false);
+  const [displayBriefing, setDisplayBriefing] = useState(false);
   const [currentPermit, setCurrentPermit] = useState(null);
+  const [displayWorkPermitView, setDisplayWorkPermitView] = useState(false);
   const handleChangeWorkPermitStatusStatus = async (e, id) => {
-    let newPermitStatus = e.target.value;
-
+    const newPermitStatus = e.target.value;
     await updateWorkPermit(id, { status: newPermitStatus });
   };
 
   const handleBriefingModal = (permit) => {
     setCurrentPermit(permit);
-    if (permit.briefing && permit.briefing._id) {
-      setBriefing(permit.briefing);
-    }
-
+    setBriefing(
+      permit.briefing && permit.briefing._id
+        ? permit.briefing
+        : {
+            status: "",
+            description: "",
+          }
+    );
     setDisplayBriefing(true);
   };
 
@@ -38,184 +45,276 @@ const WorkPermitTable = ({ workPermits }) => {
   const handleUpdateBriefing = async (e) => {
     e.preventDefault();
     await updateWorkPermit(currentPermit._id, { briefing: briefing });
+    setDisplayBriefing(false);
   };
 
   return (
     <>
-      {Displaybriefing && (
-        <div>
-          {" "}
-          <div>
-            <label className="block font-medium mb-1">Status</label>
-            <select
-              name="status"
-              value={briefing.status}
-              onChange={handleChange}
-              required
-              className="border rounded p-2 w-full"
-            >
-              <option value="">Select a status</option>
-              <option value="done">Done</option>
-              <option value="blocked">Blocked</option>
-              <option value="reluctantly">Reluctantly</option>
-            </select>
+      {displayWorkPermitView && (
+        <WorkPermitView
+          data={currentPermit}
+          setDisplayWorkPermitView={setDisplayWorkPermitView}
+        />
+      )}
+
+      {/* Briefing Modal */}
+      {displayBriefing && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div className="flex justify-between items-center border-b p-4">
+              <h3 className="text-lg font-semibold">Work Permit Briefing</h3>
+              <button
+                onClick={() => setDisplayBriefing(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <MdClose size={24} />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Status
+                </label>
+                <select
+                  name="status"
+                  value={briefing.status}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <option value="">Select a status</option>
+                  <option value="done">Done</option>
+                  <option value="blocked">Blocked</option>
+                  <option value="reluctantly">Reluctantly</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Description
+                </label>
+                <textarea
+                  name="description"
+                  value={briefing.description}
+                  onChange={handleChange}
+                  placeholder="Enter briefing description"
+                  rows={4}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+            <div className="flex justify-end space-x-3 p-4 border-t">
+              <button
+                onClick={() => setDisplayBriefing(false)}
+                className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleUpdateBriefing}
+                className="px-4 py-2 bg-blue-600 border border-transparent rounded-md shadow-sm text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                Save Briefing
+              </button>
+            </div>
           </div>
-          <div>
-            <label className="block font-medium mb-1">Description</label>
-            <textarea
-              name="description"
-              value={briefing.description}
-              onChange={handleChange}
-              placeholder="Enter description"
-              className="border rounded p-2 w-full"
-            />
-          </div>
-          <button
-            onClick={handleUpdateBriefing}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Add Briefing
-          </button>
-          <button
-            onClick={() => setDisplayBriefing(false)}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Fermer
-          </button>
         </div>
       )}
 
-      {!Displaybriefing && (
-        <div className="overflow-x-auto">
-          <table className="min-w-full bg-white shadow rounded-lg">
-            <thead>
-              <tr className="bg-gray-100 text-left text-sm font-semibold text-gray-700">
-                <th className="py-3 px-4">Permit #</th>
-                <th className="py-3 px-4">Location</th>
-                <th className="py-3 px-4">Intervention</th>
-                <th className="py-3 px-4">Coordinator</th>
-                <th className="py-3 px-4">Speaker</th>
-                <th className="py-3 px-4">Start</th>
-                <th className="py-3 px-4">End</th>
-                <th className="py-3 px-4">Area</th>
-                <th className="py-3 px-4">Operation</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Briefing</th>
-                <th className="py-3 px-4">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {workPermits.length === 0 ? (
+      {/* Work Permits Table */}
+      {!displayBriefing && (
+        <div className="bg-white shadow overflow-hidden sm:rounded-lg">
+          <div className="overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-200">
+              <thead className="bg-gray-50">
                 <tr>
-                  <td colSpan="9" className="text-center py-4 text-gray-500">
-                    No work permits found.
-                  </td>
-                </tr>
-              ) : (
-                workPermits.map((permit) => (
-                  <tr
-                    key={permit._id}
-                    className="border-b hover:bg-gray-50 transition duration-200 text-sm"
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
-                    <td className="py-3 px-4">{permit.numero}</td>
-                    <td className="py-3 px-4">{permit.location}</td>
-                    <td className="py-3 px-4">{permit.intervention}</td>
-                    <td className="py-3 px-4">
-                      {permit.coordinatorName} <br />
-                      <span className="text-xs text-gray-500">
-                        {permit.coordinatorPosition}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      {permit.speakerName} <br />
-                      <span className="text-xs text-gray-500">
-                        {permit.speakerPosition}
-                      </span>
-                    </td>
-                    <td className="py-3 px-4">
-                      {new Date(permit.startDateTime).toLocaleString()}
-                    </td>
-                    <td className="py-3 px-4">
-                      {new Date(permit.endDateTime).toLocaleString()}
-                    </td>
-                    <td className="py-3 px-4">{permit.placeArea}</td>
-                    <td className="py-3 px-4">
-                      {permit.toolsUsed && permit.toolsUsed.join(", ")}
-                    </td>
-                    <td className=" text-gray-900">
-                      <select
-                        onChange={(e) =>
-                          handleChangeWorkPermitStatusStatus(e, permit._id)
-                        }
-                        className={
-                          permit.status === "pending"
-                            ? "px-2 py-4 rounded bg-orange-500"
-                            : permit.status === "rejected"
-                            ? "px-2 py-4 rounded  bg-red-600"
-                            : "px-2 py-4 rounded  bg-green-600"
-                        }
-                      >
-                        <option
-                          className={
-                            permit.status === "pending"
-                              ? "px-2 py-4 rounded  bg-orange-500"
-                              : permit.status === "rejected"
-                              ? "px-2 py-4 rounded  bg-red-600"
-                              : "px-2 py-4 rounded  bg-green-600"
-                          }
-                          defaultChecked
-                          value={permit.status}
-                        >
-                          {permit.status}
-                        </option>
-                        {["rejected", "pending", "approved"]
-                          .filter((el) => el != permit.status)
-                          .map((el) => {
-                            return (
-                              <option
-                                className={
-                                  el === "pending"
-                                    ? "px-2 py-4 rounded  bg-orange-500"
-                                    : el === "rejected"
-                                    ? "px-2 py-4 rounded  bg-red-600"
-                                    : "px-2 py-4 rounded  bg-green-600"
-                                }
-                                value={el}
-                              >
-                                {el}
-                              </option>
-                            );
-                          })}
-                      </select>
-                    </td>
-                    <td className="py-3 px-4">
-                      <FiEye
-                        size={25}
-                        onClick={() => handleBriefingModal(permit)}
-                        color="blue"
-                      />
-                    </td>
-                    <td className="py-3 px-4">
-                      <button className="text-blue-600 hover:underline mr-2">
-                        View
-                      </button>
-                      <button
-                        onClick={() =>
-                          navigate(`/update-work-permit/${permit._id}`)
-                        }
-                        className="text-green-600 hover:underline mr-2"
-                      >
-                        Edit
-                      </button>
-                      <button className="text-red-600 hover:underline">
-                        Delete
-                      </button>
+                    Permit #
+                  </th>
+
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Company
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Coordinator
+                  </th>
+
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Start
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    End
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Area
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Operation
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Briefing
+                  </th>
+                  <th
+                    scope="col"
+                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="bg-white divide-y divide-gray-200">
+                {workPermits.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="12"
+                      className="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-500"
+                    >
+                      No work permits found.
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                ) : (
+                  workPermits.map((permit) => (
+                    <tr
+                      key={permit._id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {permit.numero}
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {permit.intervention}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex flex-col">
+                          <span className="font-medium">
+                            {permit.coordinatorName}
+                          </span>
+                          <span className="text-xs text-gray-400">
+                            {permit.coordinatorPosition}
+                          </span>
+                        </div>
+                      </td>
+
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {
+                          new Date(permit.startDateTime)
+                            .toLocaleString()
+                            .split(" ")[0]
+                        }
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {
+                          new Date(permit.endDateTime)
+                            .toLocaleString()
+                            .split(" ")[0]
+                        }
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {permit.placeArea}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {permit.toolsUsed && permit.toolsUsed.join(", ")}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <select
+                          onChange={(e) =>
+                            handleChangeWorkPermitStatusStatus(e, permit._id)
+                          }
+                          value={permit.status}
+                          className={`text-xs font-medium px-2.5 py-0.5 rounded-full ${
+                            permit.status === "pending"
+                              ? "bg-orange-100 text-orange-800"
+                              : permit.status === "rejected"
+                              ? "bg-red-100 text-red-800"
+                              : "bg-green-100 text-green-800"
+                          }`}
+                        >
+                          <option value={permit.status} className="bg-white">
+                            {permit.status}
+                          </option>
+                          {["rejected", "pending", "approved"]
+                            .filter((el) => el !== permit.status)
+                            .map((el) => (
+                              <option key={el} value={el} className="bg-white">
+                                {el}
+                              </option>
+                            ))}
+                        </select>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <button
+                          onClick={() => handleBriefingModal(permit)}
+                          className="text-blue-600 hover:text-blue-800 transition-colors"
+                          title="View Briefing"
+                        >
+                          <FiEye size={18} />
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div className="flex space-x-2">
+                          <button
+                            onClick={() => {
+                              setCurrentPermit(permit);
+                              setDisplayWorkPermitView(true);
+                            }}
+                            className="text-blue-600 hover:text-blue-900 transition-colors"
+                            title="View"
+                          >
+                            <FiEye size={18} />
+                          </button>
+                          <button
+                            onClick={() =>
+                              navigate(`/update-work-permit/${permit._id}`)
+                            }
+                            className="text-yellow-600 hover:text-yellow-900 transition-colors"
+                            title="Edit"
+                          >
+                            <FaPen size={16} />
+                          </button>
+                          <button
+                            className="text-red-600 hover:text-red-900 transition-colors"
+                            title="Delete"
+                          >
+                            <FaTrash size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
     </>
@@ -224,25 +323,51 @@ const WorkPermitTable = ({ workPermits }) => {
 
 function WorkPermitManagement() {
   const [workPermits, setWorkPermits] = useState([]);
-  useEffect(() => {
-    getAllWorkPermits().then((res) => {
-      setWorkPermits(res);
-    });
-  }, []);
+  const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchWorkPermits = async () => {
+      try {
+        const res = await getAllWorkPermits();
+        setWorkPermits(res);
+      } catch (error) {
+        console.error("Error fetching work permits:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchWorkPermits();
+  }, []);
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Work Permits</h1>
-      <div className="flex flex-row  justify-end mb-5">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">
+            Work Permits Management
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Manage and track all work permits in your organization
+          </p>
+        </div>
         <button
           onClick={() => navigate("/work-permit")}
-          className="bg-green-600 px-2 py-4 rounded text-white"
+          className="mt-4 md:mt-0 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
         >
-          ajouter un permit de travail{" "}
+          <FaPlus className="mr-2" />
+          Add New Work Permit
         </button>
       </div>
 
-      <WorkPermitTable workPermits={workPermits} />
+      {isLoading ? (
+        <div className="flex justify-center items-center py-12">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      ) : (
+        <WorkPermitTable workPermits={workPermits} />
+      )}
     </div>
   );
 }

@@ -37,4 +37,17 @@ const updateUser = async (data) => {
   }
 };
 
-export default { getAllUsers, deleteUser, updateUser };
+const sendAccountStatusEmail = async (data) => {
+  try {
+    console.log(data);
+    let res = await axios.post(
+      "http://localhost:8000/api/auth/send-account-status-email",
+      data
+    );
+    return res.data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export default { getAllUsers, deleteUser, updateUser, sendAccountStatusEmail };

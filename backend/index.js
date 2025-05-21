@@ -6,10 +6,11 @@ import authRoutes from "./routes/authRoutes.js";
 import usersRoutes from "./routes/usersRoutes.js";
 import stocksRoutes from "./routes/stockRoutes.js";
 import hotWorkPermitRoutes from "./routes/hotWorkPermitRoutes.js";
-
+import patrolRoutes from "./routes/patrolsRoutes.js";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import sendLowStockEmail from "./helpers/sendLowStockEmail.js";
 
 // rest api
 // ===> representational state transfert
@@ -34,9 +35,12 @@ server.use("/api/auth", authRoutes);
 server.use("/api/users", usersRoutes);
 server.use("/api/stocks", stocksRoutes);
 server.use("/api/hot-work-permits", hotWorkPermitRoutes);
+server.use("/api/patrols", patrolRoutes);
 server.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
+//server.use('/api/emails',emailRoutes)
 server.listen(8000, () => {
+  sendLowStockEmail("najlaouibasmasv@gmail.com");
+
   console.log("serveur en marche ya basma !");
 });
 

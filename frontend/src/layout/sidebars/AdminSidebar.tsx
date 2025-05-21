@@ -140,9 +140,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
 
               <li>
                 <NavLink
-                  to="/users-management"
+                  to="/work-permit-management"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("/users_management") &&
+                    pathname.includes("/work-permit-management") &&
                     "bg-graydark dark:bg-meta-4"
                   }`}
                 >
@@ -152,9 +152,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               </li>
               <li>
                 <NavLink
-                  to="/users-management"
+                  to="/patrol-management"
                   className={`group relative flex items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                    pathname.includes("/users_management") &&
+                    pathname.includes("/patrol-management") &&
                     "bg-graydark dark:bg-meta-4"
                   }`}
                 >

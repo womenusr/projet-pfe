@@ -1,6 +1,8 @@
 import userModel from "../models/userModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import transporter from "../config/emailConfig.js";
+
 export const register = async (req, res) => {
   try {
     let user = await userModel.findOne({ email: req.body.email });
@@ -104,5 +106,26 @@ export const updateProfile = async (req, res) => {
     }
   } catch (error) {
     res.json({ error: error });
+  }
+};
+
+export const sendAccountStatusEmail = async (req, res) => {
+  try {
+    const { userEmail } = req.body;
+
+    const mailOptions = {
+      from: "<no-reply@example.com>",
+      to: userEmail, // Recipient email
+      subject: "status du compte",
+      text: "votre compte a été activé avec succes", // Plain text body
+    };
+
+    // Send email
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ success: true, message: "Email sent successfully" });
+  } catch (error) {
+    console.error("Error sending email:", error);
+    res.status(500).json({ error: "Failed to send email" });
   }
 };
