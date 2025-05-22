@@ -17,6 +17,18 @@ export const updateWorkPermit = async (id, data) => {
   return res.data;
 };
 
+export const deleteWorkPermit = async (id) => {
+  let res = await axios.delete(base_url + `/${id}`);
+  return res.data;
+};
+
+export const deleteHotWorkPermit = async (id) => {
+  let res = await axios.delete(
+    `http://localhost:8000/api/hot-work-permits/delete_permit/${id}`
+  );
+  return res.data;
+};
+
 export const sendEmail = async (data) => {
   let res = await axios.post(base_url + "/send-email", data, {
     headers: {

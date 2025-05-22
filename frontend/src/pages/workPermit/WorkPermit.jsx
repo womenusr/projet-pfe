@@ -68,7 +68,7 @@ const WorkPermit = () => {
     "Cutting tool",
     "Drilling tool",
     "Chemical substances",
-    "Hot working tools (cutting, welding...)",
+    "hot working tools (cutting , welding ...)",
     "Live electrical equipment",
     "Working at height equipment",
     "Lifting equipment",
@@ -375,13 +375,13 @@ const WorkPermit = () => {
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
                 PERSONAL PROTECTION EQUIPMENT
               </h2>
-              <ImageCheckboxGrid />
+              <ImageCheckboxGrid toolsUsed={formData.toolsUsed} />
             </div>
             <div className="p-4 border rounded-lg bg-gray-50">
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
                 EQUIPMENT AGAINST FIRE
               </h2>
-              <EquipementAgainFire />
+              <EquipementAgainFire toolsUsed={formData.toolsUsed} />
             </div>
           </div>
 

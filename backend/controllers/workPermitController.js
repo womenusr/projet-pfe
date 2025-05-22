@@ -7,13 +7,18 @@ import transporter from "../config/emailConfig.js";
 
 export const createWorkPermit = async (req, res) => {
   try {
-    const exisitingWorkPermits = await WorkPermit.find();
+    const maxNumeroWorkPermit = await WorkPermit.findOne()
+      .sort({ numero: -1 })
+      .select("numero");
+
+    const nextNumero = maxNumeroWorkPermit ? maxNumeroWorkPermit.numero + 1 : 1;
+
     if (req.body.hotWork) {
       let newHotWork = new hotWorkModel(req.body.hotWork);
       await newHotWork.save();
       const permit = new WorkPermit({
         ...req.body,
-        numero: exisitingWorkPermits.length + 1,
+        numero: nextNumero,
         hot_work_id: newHotWork._id,
       });
       await permit.save();
@@ -21,7 +26,7 @@ export const createWorkPermit = async (req, res) => {
     } else {
       const permit = new WorkPermit({
         ...req.body,
-        numero: exisitingWorkPermits.length + 1,
+        numero: nextNumero,
       });
       await permit.save();
       res.status(201).json(permit);

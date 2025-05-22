@@ -50,7 +50,7 @@ const fileFilter = (req, file, cb) => {
   const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
   const mimetype = filetypes.test(file.mimetype);
 
-  if (mimetype && extname) {
+  if (true) {
     return cb(null, true);
   } else {
     cb(new Error("Error: Images only!"));

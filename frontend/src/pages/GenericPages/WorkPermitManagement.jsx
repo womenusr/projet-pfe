@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
+  deleteHotWorkPermit,
+  deleteWorkPermit,
   getAllWorkPermits,
   updateWorkPermit,
 } from "../../services/workPermitServices";
@@ -9,8 +11,13 @@ import { FiEye } from "react-icons/fi";
 import { HiStatusOnline } from "react-icons/hi";
 import { MdClose } from "react-icons/md";
 import WorkPermitView from "../workPermit/ViewWorkPermit";
+import { toast } from "react-toastify";
 
-const WorkPermitTable = ({ workPermits }) => {
+const WorkPermitTable = ({
+  workPermits,
+  fetchWorkPermits,
+  setDisplaySearchArea,
+}) => {
   const navigate = useNavigate();
   const [briefing, setBriefing] = useState({
     status: "",
@@ -21,7 +28,9 @@ const WorkPermitTable = ({ workPermits }) => {
   const [displayWorkPermitView, setDisplayWorkPermitView] = useState(false);
   const handleChangeWorkPermitStatusStatus = async (e, id) => {
     const newPermitStatus = e.target.value;
-    await updateWorkPermit(id, { status: newPermitStatus });
+    await updateWorkPermit(id, { status: newPermitStatus }).then(() => {
+      fetchWorkPermits();
+    });
   };
 
   const handleBriefingModal = (permit) => {
@@ -48,12 +57,30 @@ const WorkPermitTable = ({ workPermits }) => {
     setDisplayBriefing(false);
   };
 
+  const handleDeleteWorkPermit = async (permit) => {
+    try {
+      await deleteWorkPermit(permit._id);
+
+      if (permit.hot_work_id) {
+        await deleteHotWorkPermit(permit.hot_work_id);
+      }
+
+      toast.success("Work permit deleted successfully.");
+    } catch (error) {
+      console.error("Error deleting work permit:", error);
+      toast.error("Failed to delete work permit.");
+    } finally {
+      fetchWorkPermits();
+    }
+  };
+
   return (
     <>
       {displayWorkPermitView && (
         <WorkPermitView
           data={currentPermit}
           setDisplayWorkPermitView={setDisplayWorkPermitView}
+          setDisplaySearchArea={setDisplaySearchArea}
         />
       )}
 
@@ -286,6 +313,7 @@ const WorkPermitTable = ({ workPermits }) => {
                             onClick={() => {
                               setCurrentPermit(permit);
                               setDisplayWorkPermitView(true);
+                              setDisplaySearchArea(false);
                             }}
                             className="text-blue-600 hover:text-blue-900 transition-colors"
                             title="View"
@@ -304,6 +332,7 @@ const WorkPermitTable = ({ workPermits }) => {
                           <button
                             className="text-red-600 hover:text-red-900 transition-colors"
                             title="Delete"
+                            onClick={() => handleDeleteWorkPermit(permit)}
                           >
                             <FaTrash size={16} />
                           </button>
@@ -323,23 +352,48 @@ const WorkPermitTable = ({ workPermits }) => {
 
 function WorkPermitManagement() {
   const [workPermits, setWorkPermits] = useState([]);
+  const [filteredPermits, setFilteredPermits] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchField, setSearchField] = useState("numero"); // Champ par défaut
+  const [searchText, setSearchText] = useState("");
+  const [displaySearchArea, setDisplaySearchArea] = useState(true);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchWorkPermits = async () => {
-      try {
-        const res = await getAllWorkPermits();
-        setWorkPermits(res);
-      } catch (error) {
-        console.error("Error fetching work permits:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const searchFields = [
+    { value: "numero", label: "Permit #" },
+    { value: "intervention", label: "Company" },
+    { value: "coordinatorName", label: "Coordinator Name" },
+    { value: "placeArea", label: "Area" },
+    { value: "status", label: "Status" },
+  ];
 
+  const fetchWorkPermits = async () => {
+    try {
+      const res = await getAllWorkPermits();
+      setWorkPermits(res);
+      setFilteredPermits(res);
+    } catch (error) {
+      console.error("Error fetching work permits:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchWorkPermits();
   }, []);
+
+  useEffect(() => {
+    if (searchText === "") {
+      setFilteredPermits(workPermits);
+    } else {
+      const filtered = workPermits.filter((permit) => {
+        const fieldValue = permit[searchField]?.toString().toLowerCase() || "";
+        return fieldValue.includes(searchText.toLowerCase());
+      });
+      setFilteredPermits(filtered);
+    }
+  }, [searchText, searchField, workPermits]);
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -360,14 +414,48 @@ function WorkPermitManagement() {
           Add New Work Permit
         </button>
       </div>
-
-      {isLoading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      {displaySearchArea && (
+        <div className="mb-6 flex flex-col sm:flex-row gap-3">
+          <div className="relative flex-grow">
+            <select
+              value={searchField}
+              onChange={(e) => setSearchField(e.target.value)}
+              className="block w-full pl-3 pr-10 py-2 text-base border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+            >
+              {searchFields.map((field) => (
+                <option key={field.value} value={field.value}>
+                  {field.label}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="relative flex-grow">
+            <input
+              type="text"
+              placeholder={`Search by ${
+                searchFields.find((f) => f.value === searchField)?.label
+              }...`}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+            />
+            {searchText && (
+              <button
+                onClick={() => setSearchText("")}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center"
+              >
+                <MdClose className="h-5 w-5 text-gray-400" />
+              </button>
+            )}
+          </div>
         </div>
-      ) : (
-        <WorkPermitTable workPermits={workPermits} />
-      )}
+      )}{" "}
+      {/* Search Bar */}
+      <WorkPermitTable
+        workPermits={filteredPermits}
+        fetchWorkPermits={fetchWorkPermits}
+        setDisplaySearchArea={setDisplaySearchArea}
+      />
     </div>
   );
 }

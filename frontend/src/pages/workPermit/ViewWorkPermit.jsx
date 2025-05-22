@@ -10,8 +10,14 @@ import html2canvas from "html2canvas-pro";
 import jsPDF from "jspdf";
 import axios from "axios";
 import ViewHotWork from "../FirePermit/ViewHotWork";
+import ImageCheckboxGrid from "../../components/common/ImageCheckboxGrid";
+import EquipementAgainFire from "../../components/common/EquipementAgainFire";
 
-const WorkPermitView = ({ data, setDisplayWorkPermitView }) => {
+const WorkPermitView = ({
+  data,
+  setDisplayWorkPermitView,
+  setDisplaySearchArea,
+}) => {
   const navigate = useNavigate();
   const [workPermit, setWorkPermit] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -434,6 +440,21 @@ margin-top : 130vh;}
           </div>
         </div>
 
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              PERSONAL PROTECTION EQUIPMENT
+            </h2>
+            <ImageCheckboxGrid toolsUsed={workPermit.toolsUsed} />
+          </div>
+          <div className="p-4 border rounded-lg bg-gray-50">
+            <h2 className="text-lg font-semibold text-gray-700 mb-4">
+              EQUIPMENT AGAINST FIRE
+            </h2>
+            <EquipementAgainFire toolsUsed={workPermit.toolsUsed} />
+          </div>
+        </div>
+
         {/* Safety Requirements */}
         <div className="mb-6">
           <h2 className="text-lg font-semibold border-b pb-1 mb-3">
@@ -572,7 +593,14 @@ margin-top : 130vh;}
           </div>
         </div>
       )}
-      <button onClick={() => setDisplayWorkPermitView(false)}>fermer</button>
+      <button
+        onClick={() => {
+          setDisplayWorkPermitView(false);
+          setDisplaySearchArea(true);
+        }}
+      >
+        fermer
+      </button>
     </div>
   );
 };
